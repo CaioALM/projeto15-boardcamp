@@ -1,13 +1,13 @@
-import connection from "../database";
+import connection from "../database.js";
 
 
 export async function listCategories(req, res) {
     try {
-    const queryCategories = await connection.query("SELECT * FROM categories");
-    const categories = queryCategories.rows[0];
+    const { rows: categories } = await connection.query("SELECT * FROM categories");
 
-    if (!categories) return res.send(204);
-    
+
+    if (!categories) return res.sendStatus(204);
+
     res.send(categories);
 } catch {
     res.sendStatus(404);
@@ -17,24 +17,20 @@ export async function listCategories(req, res) {
 export async function postCategories(req, res) {
 
     try{
-        const nameCategory = req.   body.name;
+        const { name } = req.body;
 
-        if (!nameCategory) return res.sendStatus(400);
+        if (!name) return res.sendStatus(400);
 
-        const queryCategories = await connection.query("SELECT * FROM categories");
-        const categories = queryCategories.rows[0];
+        const { rows: categories }  = await connection.query("SELECT * FROM categories");
+  
 
-        let gameCategory = categories.find(el => el.name === nameCategory);
-        if ( !gameCategory) {
-            const queryCategorie = await connection.query("INSERT INTO categories (name, category_id) VALUES $1", [nameCategory]); 
-            res.send(201)
-        } else {
-            res.send(409)
-        }
-
-        
-    } catch {
-        res.send(500)
+        if ( categories.find(el => el.name === name)) return res.sendStatus(409)
+           
+        await connection.query("INSERT INTO categories (name) VALUES ($1)", [name]); 
+        res.sendStatus(201)
+   
+    } catch (error) {
+        res.status(500).send(error.message)
     }
 
 }
