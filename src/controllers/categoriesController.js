@@ -24,7 +24,7 @@ export async function postCategories(req, res) {
         const { rows: categories }  = await connection.query("SELECT * FROM categories");
   
 
-        if ( categories.find(el => el.name === name)) return res.sendStatus(409)
+        if ( categories.find(el => el.name === name)) return res.sendStatus(409);
            
         await connection.query("INSERT INTO categories (name) VALUES ($1)", [name]); 
         res.sendStatus(201)
